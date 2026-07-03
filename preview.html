@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>King Gnu Hub · 样式预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { ink: "#0b0b0f", paper: "#f5f2ea", accent: "#e63946", muted: "#8a8a8a" },
+      fontFamily: {
+        sans: ["'Noto Sans JP'", "'Inter'", "system-ui", "sans-serif"],
+        display: ["'Bebas Neue'", "'Noto Sans JP'", "sans-serif"]
+      }
+    }
+  }
+};
+</script>
+<style>
+  html, body { background:#0b0b0f; color:#f5f2ea; scroll-behavior:smooth; }
+  .grain::before {
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:100; opacity:.06;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .section { scroll-margin-top: 80px; }
+  .tab-btn.active { color:#e63946; border-color:#e63946; }
+</style>
+</head>
+<body class="grain font-sans">
+
+<!-- Nav -->
+<header class="sticky top-0 z-50 backdrop-blur bg-ink/70 border-b border-white/10">
+  <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+    <a href="#home" class="font-display text-2xl tracking-widest">KING&nbsp;GNU<span class="text-accent">.</span>HUB</a>
+    <nav id="nav" class="hidden md:flex gap-6 text-sm">
+      <a href="#home"     class="tab-btn hover:text-accent" data-tab="home">首页</a>
+      <a href="#about"    class="tab-btn hover:text-accent" data-tab="about">乐队</a>
+      <a href="#updates"  class="tab-btn hover:text-accent" data-tab="updates">动态</a>
+      <a href="#music"    class="tab-btn hover:text-accent" data-tab="music">听歌</a>
+      <a href="#news"     class="tab-btn hover:text-accent" data-tab="news">新闻</a>
+      <a href="#tickets"  class="tab-btn hover:text-accent" data-tab="tickets">购票</a>
+      <a href="#merch"    class="tab-btn hover:text-accent" data-tab="merch">周边</a>
+      <a href="#community" class="tab-btn hover:text-accent" data-tab="community">社区</a>
+    </nav>
+  </div>
+</header>
+
+<!-- =============== HOME =============== -->
+<section id="home" class="section relative overflow-hidden">
+  <div class="max-w-6xl mx-auto px-5 pt-20 pb-24">
+    <p class="text-accent tracking-[0.4em] text-xs mb-4">NON-OFFICIAL FAN HUB</p>
+    <h1 class="font-display text-6xl md:text-8xl leading-none">KING GNU<br><span class="text-accent">HUB.</span></h1>
+    <p class="mt-6 max-w-xl text-muted">混合摇滚、爵士、古典与流行的东京四人乐队 King Gnu 粉丝聚合站。一处入口，抵达全部关于他们的内容。</p>
+    <div class="mt-8 flex gap-4">
+      <a href="#music" class="bg-accent text-paper px-6 py-3 font-semibold hover:bg-paper hover:text-ink transition">开始听歌 →</a>
+      <a href="#about" class="border border-white/30 px-6 py-3 hover:border-accent hover:text-accent transition">认识乐队</a>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-5 pb-24 grid gap-4 md:grid-cols-3">
+  <a href="#updates" class="group border border-white/10 hover:border-accent p-6 transition">
+    <div class="font-display text-3xl group-hover:text-accent">LIVE FEED</div>
+    <div class="text-xs text-muted mt-1 tracking-widest">最新动态</div>
+    <p class="mt-4 text-sm text-paper/80">YouTube / X / Instagram / Facebook 官方实时聚合</p>
+  </a>
+  <a href="#music" class="group border border-white/10 hover:border-accent p-6 transition">
+    <div class="font-display text-3xl group-hover:text-accent">LISTEN</div>
+    <div class="text-xs text-muted mt-1 tracking-widest">听歌</div>
+    <p class="mt-4 text-sm text-paper/80">官方 YouTube / Spotify 精选歌单直通</p>
+  </a>
+  <a href="#news" class="group border border-white/10 hover:border-accent p-6 transition">
+    <div class="font-display text-3xl group-hover:text-accent">NEWS</div>
+    <div class="text-xs text-muted mt-1 tracking-widest">新闻</div>
+    <p class="mt-4 text-sm text-paper/80">最新动态、演出预告、媒体资讯</p>
+  </a>
+  <a href="#tickets" class="group border border-white/10 hover:border-accent p-6 transition">
+    <div class="font-display text-3xl group-hover:text-accent">TICKETS</div>
+    <div class="text-xs text-muted mt-1 tracking-widest">购票</div>
+    <p class="mt-4 text-sm text-paper/80">官方演出票务导航与巡演信息</p>
+  </a>
+  <a href="#merch" class="group border border-white/10 hover:border-accent p-6 transition">
+    <div class="font-display text-3xl group-hover:text-accent">MERCH</div>
+    <div class="text-xs text-muted mt-1 tracking-widest">周边</div>
+    <p class="mt-4 text-sm text-paper/80">官方 Store 与限量周边资讯</p>
+  </a>
+  <a href="#community" class="group border border-white/10 hover:border-accent p-6 transition">
+    <div class="font-display text-3xl group-hover:text-accent">COMMUNITY</div>
+    <div class="text-xs text-muted mt-1 tracking-widest">社区</div>
+    <p class="mt-4 text-sm text-paper/80">粉丝讨论、评论、聚会与二创</p>
+  </a>
+</section>
+
+<!-- =============== ABOUT =============== -->
+<section id="about" class="section max-w-5xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">BAND</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-6">乐队介绍</h2>
+  <p class="text-paper/80 max-w-3xl leading-relaxed">King Gnu 是 2017 年在东京组建的四人摇滚乐队，成员均具备古典与爵士训练背景。</p>
+
+  <h3 class="font-display text-3xl mt-14 mb-6">成员</h3>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="border border-white/10 p-6"><div class="font-semibold text-lg">常田 大希 / Daiki Tsuneta</div><div class="text-accent text-xs tracking-widest mt-1">Vo / Gt / Key — 主创</div><p class="mt-3 text-sm text-paper/70 leading-relaxed">乐队核心创作者，同时主导 millennium parade 项目。</p></div>
+    <div class="border border-white/10 p-6"><div class="font-semibold text-lg">井口 理 / Satoru Iguchi</div><div class="text-accent text-xs tracking-widest mt-1">Vo / Key</div><p class="mt-3 text-sm text-paper/70 leading-relaxed">拥有假声与真声兼备的独特声线。</p></div>
+    <div class="border border-white/10 p-6"><div class="font-semibold text-lg">新井 和輝 / Kazuki Arai</div><div class="text-accent text-xs tracking-widest mt-1">Ba</div><p class="mt-3 text-sm text-paper/70 leading-relaxed">毕业于东京艺大爵士系。</p></div>
+    <div class="border border-white/10 p-6"><div class="font-semibold text-lg">勢喜 遊 / Yu Seki</div><div class="text-accent text-xs tracking-widest mt-1">Dr</div><p class="mt-3 text-sm text-paper/70 leading-relaxed">东京艺大爵士鼓手。</p></div>
+  </div>
+
+  <h3 class="font-display text-3xl mt-14 mb-6">编年史</h3>
+  <ol class="relative border-l border-white/10 pl-6 space-y-6">
+    <li class="relative"><span class="absolute -left-[31px] top-1 w-3 h-3 bg-accent rounded-full"></span><div class="font-display text-2xl text-accent">2017</div><div class="text-paper/80">更名 King Gnu，独立发行首张专辑《Tokyo Rendez-Vous》</div></li>
+    <li class="relative"><span class="absolute -left-[31px] top-1 w-3 h-3 bg-accent rounded-full"></span><div class="font-display text-2xl text-accent">2019</div><div class="text-paper/80">《白日》成为 NHK 剧集主题曲，全国爆红</div></li>
+    <li class="relative"><span class="absolute -left-[31px] top-1 w-3 h-3 bg-accent rounded-full"></span><div class="font-display text-2xl text-accent">2023</div><div class="text-paper/80">「THE GREATEST UNKNOWN」东京巨蛋巡演展开</div></li>
+    <li class="relative"><span class="absolute -left-[31px] top-1 w-3 h-3 bg-accent rounded-full"></span><div class="font-display text-2xl text-accent">2026</div><div class="text-paper/80">CEN+RAL Tour 15 城 29+ 场，史上最大规模巡演</div></li>
+  </ol>
+</section>
+
+<!-- =============== UPDATES (LIVE FEED) =============== -->
+<section id="updates" class="section max-w-6xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">LIVE FEED</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-4">最新动态</h2>
+  <p class="text-paper/80 max-w-3xl">聚合官方 YouTube、X、Instagram、Facebook、TikTok。视频列表通过 YouTube 频道 RSS 每 15 分钟自动刷新，社交时间线由各平台官方 widget 实时渲染。</p>
+
+  <div class="mt-8 flex flex-wrap gap-3">
+    <a class="border border-white/20 hover:border-accent hover:text-accent px-4 py-2 text-sm" href="https://www.youtube.com/@KingGnu_official" target="_blank">YouTube →</a>
+    <a class="border border-white/20 hover:border-accent hover:text-accent px-4 py-2 text-sm" href="https://x.com/KingGnu_JP" target="_blank">X / Twitter →</a>
+    <a class="border border-white/20 hover:border-accent hover:text-accent px-4 py-2 text-sm" href="https://www.instagram.com/kinggnu.jp/" target="_blank">Instagram →</a>
+    <a class="border border-white/20 hover:border-accent hover:text-accent px-4 py-2 text-sm" href="https://www.facebook.com/KingGnu/" target="_blank">Facebook →</a>
+    <a class="border border-white/20 hover:border-accent hover:text-accent px-4 py-2 text-sm" href="https://www.tiktok.com/@kinggnu_official" target="_blank">TikTok →</a>
+  </div>
+
+  <h3 class="font-display text-3xl mt-12 mb-4">最新视频</h3>
+  <div class="grid md:grid-cols-5 gap-6 border border-white/10">
+    <div class="md:col-span-3 aspect-video">
+      <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/zz2a9Q2Wru0" title="AIZO" allowfullscreen></iframe>
+    </div>
+    <div class="md:col-span-2 p-6 flex flex-col justify-between">
+      <div>
+        <div class="text-xs text-accent tracking-widest">YOUTUBE · 最新</div>
+        <h4 class="mt-2 text-xl font-semibold leading-snug">AIZO — 咒术回战 3期「死灭回游」OP</h4>
+      </div>
+      <a href="https://www.youtube.com/watch?v=zz2a9Q2Wru0" target="_blank" class="mt-4 text-accent text-sm hover:underline">在 YouTube 打开 →</a>
+    </div>
+  </div>
+
+  <h3 class="font-display text-3xl mt-12 mb-4">YouTube 近期上传 <span class="text-xs text-muted ml-3">via channel RSS · 每 15 分钟自动刷新</span></h3>
+  <div class="grid md:grid-cols-3 gap-4">
+    <a href="https://www.youtube.com/watch?v=b-uolrebi5M" target="_blank" class="border border-white/10 hover:border-accent block group">
+      <div class="aspect-video overflow-hidden bg-black/40"><img src="https://i.ytimg.com/vi/b-uolrebi5M/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition" alt="SO BAD"></div>
+      <div class="p-3"><div class="text-xs text-muted">2025-09-05</div><div class="text-sm mt-1">SO BAD Official MV</div></div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=bPGvr6G4ddU" target="_blank" class="border border-white/10 hover:border-accent block group">
+      <div class="aspect-video overflow-hidden bg-black/40"><img src="https://i.ytimg.com/vi/bPGvr6G4ddU/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition" alt="TWILIGHT"></div>
+      <div class="p-3"><div class="text-xs text-muted">2025-04-18</div><div class="text-sm mt-1">TWILIGHT!!! Official MV</div></div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=hkMNf8OBMyw" target="_blank" class="border border-white/10 hover:border-accent block group">
+      <div class="aspect-video overflow-hidden bg-black/40"><img src="https://i.ytimg.com/vi/hkMNf8OBMyw/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition" alt="MASCARA"></div>
+      <div class="p-3"><div class="text-xs text-muted">2024-10-04</div><div class="text-sm mt-1">MASCARA Official MV</div></div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=iwIvS8yqDaU" target="_blank" class="border border-white/10 hover:border-accent block group">
+      <div class="aspect-video overflow-hidden bg-black/40"><img src="https://i.ytimg.com/vi/iwIvS8yqDaU/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition" alt="SPECIALZ"></div>
+      <div class="p-3"><div class="text-xs text-muted">2023-09-06</div><div class="text-sm mt-1">SPECIALZ Official MV</div></div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=5yzGiuUf8i0" target="_blank" class="border border-white/10 hover:border-accent block group">
+      <div class="aspect-video overflow-hidden bg-black/40"><img src="https://i.ytimg.com/vi/5yzGiuUf8i0/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition" alt="一途"></div>
+      <div class="p-3"><div class="text-xs text-muted">2021-12-24</div><div class="text-sm mt-1">一途 Ichizu Official MV</div></div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=ony539T074w" target="_blank" class="border border-white/10 hover:border-accent block group">
+      <div class="aspect-video overflow-hidden bg-black/40"><img src="https://i.ytimg.com/vi/ony539T074w/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition" alt="白日"></div>
+      <div class="p-3"><div class="text-xs text-muted">2019-02-22</div><div class="text-sm mt-1">白日 Hakujitsu Official MV</div></div>
+    </a>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-8 mt-16">
+    <div>
+      <h3 class="font-display text-3xl mb-4">X (Twitter) <span class="text-xs text-muted ml-2">@KingGnu_JP</span></h3>
+      <div class="border border-white/10 p-6 bg-white/5 min-h-[400px] flex items-center justify-center text-center">
+        <div>
+          <div class="font-display text-4xl mb-2">𝕏</div>
+          <p class="text-sm text-muted mb-4">部署后此处渲染官方 Twitter 时间线 widget（platform.twitter.com/widgets.js）</p>
+          <a href="https://x.com/KingGnu_JP" target="_blank" class="inline-block border border-white/30 hover:border-accent hover:text-accent px-4 py-2 text-sm">前往 X 查看 →</a>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-8">
+      <div>
+        <h3 class="font-display text-3xl mb-4">Instagram <span class="text-xs text-muted ml-2">@kinggnu.jp</span></h3>
+        <div class="border border-white/10 p-6 flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-500 via-pink-500 to-yellow-400"></div>
+            <div><div class="font-semibold">@kinggnu.jp</div><div class="text-xs text-muted">Instagram Official</div></div>
+          </div>
+          <p class="text-sm text-paper/70">Meta 关闭无鉴权 profile 嵌入。可通过 Graph API 长期 token 升级为真实图墙。</p>
+          <a class="bg-accent text-paper text-center px-4 py-2 hover:bg-paper hover:text-ink transition" href="https://www.instagram.com/kinggnu.jp/" target="_blank">在 Instagram 打开 →</a>
+        </div>
+      </div>
+      <div>
+        <h3 class="font-display text-3xl mb-4">Facebook</h3>
+        <div class="border border-white/10 p-6 min-h-[220px] flex items-center justify-center text-center">
+          <div>
+            <div class="font-display text-4xl mb-2">f</div>
+            <p class="text-sm text-muted mb-4">部署后此处渲染 Facebook Page Plugin（connect.facebook.net SDK）</p>
+            <a href="https://www.facebook.com/KingGnu/" target="_blank" class="inline-block border border-white/30 hover:border-accent hover:text-accent px-4 py-2 text-sm">前往 Facebook →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== MUSIC =============== -->
+<section id="music" class="section max-w-6xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">LISTEN</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-6">听歌</h2>
+
+  <h3 class="font-display text-3xl mt-6 mb-4">最新单曲</h3>
+  <div class="border border-white/10 divide-y divide-white/10">
+    <div class="p-4 flex justify-between"><span class="font-semibold">AIZO</span><span class="text-sm text-muted">2026-02-11</span></div>
+    <div class="p-4 flex justify-between"><span class="font-semibold">SO BAD</span><span class="text-sm text-muted">2025-09-05</span></div>
+    <div class="p-4 flex justify-between"><span class="font-semibold">TWILIGHT!!!</span><span class="text-sm text-muted">2025-04-18</span></div>
+    <div class="p-4 flex justify-between"><span class="font-semibold">ねっこ</span><span class="text-sm text-muted">2024-10-21</span></div>
+    <div class="p-4 flex justify-between"><span class="font-semibold">MASCARA</span><span class="text-sm text-muted">2024-10-04</span></div>
+  </div>
+
+  <h3 class="font-display text-3xl mt-14 mb-6">MV 精选</h3>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="border border-white/10">
+      <div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/zz2a9Q2Wru0" allowfullscreen></iframe></div>
+      <div class="p-4 text-sm"><div class="font-semibold">AIZO <span class="text-muted font-normal">· 2026</span></div><div class="text-xs text-accent mt-1">TVアニメ『呪術廻戦』第3期 OP</div></div>
+    </div>
+    <div class="border border-white/10">
+      <div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/ony539T074w" allowfullscreen></iframe></div>
+      <div class="p-4 text-sm"><div class="font-semibold">白日 / Hakujitsu <span class="text-muted font-normal">· 2019</span></div><div class="text-xs text-accent mt-1">TBS『イノセンス 冤罪弁護士』主題歌</div></div>
+    </div>
+  </div>
+
+  <h3 class="font-display text-3xl mt-14 mb-6">专辑 · Spotify</h3>
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="border border-white/10">
+      <iframe src="https://open.spotify.com/embed/album/5wRPj4pJHl8oGSVjt8bC7T?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+      <div class="p-4"><div class="font-semibold">THE GREATEST UNKNOWN</div><div class="text-xs text-muted">2023 · 第 4 张录音室专辑</div></div>
+    </div>
+    <div class="border border-white/10">
+      <iframe src="https://open.spotify.com/embed/album/3ZBGmATHkJ8mfnFczr7HYM?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+      <div class="p-4"><div class="font-semibold">CEREMONY</div><div class="text-xs text-muted">2020</div></div>
+    </div>
+    <div class="border border-white/10">
+      <iframe src="https://open.spotify.com/embed/album/4V7uUAVpv3nSGSuAgvyJ1V?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+      <div class="p-4"><div class="font-semibold">Sympa</div><div class="text-xs text-muted">2019</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== NEWS =============== -->
+<section id="news" class="section max-w-4xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">NEWS</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-6">新闻</h2>
+  <div class="space-y-6">
+    <article class="border border-white/10 p-6 hover:border-accent transition">
+      <div class="text-xs text-muted tracking-widest">2026-07-15 · Sony Music</div>
+      <h3 class="text-xl font-semibold mt-2">「CEN+RAL Tour 2026」ツアーファイナル 横浜アリーナで開催</h3>
+      <p class="text-paper/70 text-sm mt-2">King Gnu 史上最大规模巡演的收官场次落地横浜アリーナ，WOWOW / Lemino / Stagecrowd 多平台同步生中継。</p>
+    </article>
+    <article class="border border-white/10 p-6 hover:border-accent transition">
+      <div class="text-xs text-muted tracking-widest">2026-02-11 · kinggnu.jp</div>
+      <h3 class="text-xl font-semibold mt-2">新单曲『AIZO』TVアニメ『呪術廻戦』第3期 OP テーマ</h3>
+      <p class="text-paper/70 text-sm mt-2">《咒术回战》第 3 期「死灭回游」开场主题曲，2026 年 2 月 11 日发行。</p>
+    </article>
+    <article class="border border-white/10 p-6 hover:border-accent transition">
+      <div class="text-xs text-muted tracking-widest">2025-10-09 · rockin'on.com</div>
+      <h3 class="text-xl font-semibold mt-2">「King Gnu CEN+RAL Tour 2026」乐队史上最多场次巡演开催決定</h3>
+      <p class="text-paper/70 text-sm mt-2">覆盖 15 城 29+ 场，含日本 10 城与曼谷、香港、台北、上海、首尔 5 座亚洲城市。</p>
+    </article>
+  </div>
+</section>
+
+<!-- =============== TICKETS =============== -->
+<section id="tickets" class="section max-w-5xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">TICKETS</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-4">购票 · 巡演</h2>
+  <p class="text-paper/80 max-w-3xl"><strong>King Gnu CEN+RAL Tour 2026</strong> —— 乐队史上最大规模巡演，覆盖日本 10 城 + 亚洲 5 城，共 29 场 + 横浜アリーナ TOUR FINAL。</p>
+
+  <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+    <div class="border border-white/10 p-4"><div class="font-display text-3xl text-accent">29+</div><div class="text-xs text-muted mt-1">SHOWS</div></div>
+    <div class="border border-white/10 p-4"><div class="font-display text-3xl text-accent">15</div><div class="text-xs text-muted mt-1">CITIES</div></div>
+    <div class="border border-white/10 p-4"><div class="font-display text-3xl text-accent">JP + Asia</div><div class="text-xs text-muted mt-1">REGION</div></div>
+    <div class="border border-white/10 p-4"><div class="font-display text-3xl text-accent">Feb–Jul</div><div class="text-xs text-muted mt-1">2026</div></div>
+  </div>
+
+  <h3 class="font-display text-3xl mt-10 mb-4">即将开演</h3>
+  <div class="border border-white/10 divide-y divide-white/10">
+    <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div><div class="font-display text-2xl">2026-07-15</div><div class="text-paper/80">横浜 Yokohama · 横浜アリーナ（TOUR FINAL·生中継）</div></div>
+      <div class="flex items-center gap-4">
+        <span class="text-xs px-3 py-1 tracking-widest bg-accent text-paper">开票中</span>
+        <a href="https://kinggnu.jp/live/" target="_blank" class="border border-white/30 hover:border-accent hover:text-accent px-4 py-2 text-sm">前往官方 →</a>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="font-display text-3xl mt-10 mb-4">亚洲巡演回顾</h3>
+  <div class="border border-white/10 divide-y divide-white/10">
+    <div class="p-5 flex justify-between items-center"><div><div class="font-display text-2xl">2026-05-23</div><div class="text-paper/80">曼谷 · One Bangkok Forum</div></div><span class="text-xs px-3 py-1 tracking-widest border border-white/10 text-muted">已结束</span></div>
+    <div class="p-5 flex justify-between items-center"><div><div class="font-display text-2xl">2026-05-29 / 05-30</div><div class="text-paper/80">香港 · AsiaWorld-Arena</div></div><span class="text-xs px-3 py-1 tracking-widest border border-white/10 text-muted">已结束</span></div>
+    <div class="p-5 flex justify-between items-center"><div><div class="font-display text-2xl">2026-06-06 / 06-07</div><div class="text-paper/80">台北 · Taipei Arena</div></div><span class="text-xs px-3 py-1 tracking-widest border border-white/10 text-muted">已结束</span></div>
+    <div class="p-5 flex justify-between items-center"><div><div class="font-display text-2xl">2026-06-13 / 06-14</div><div class="text-paper/80">上海 · TBA</div></div><span class="text-xs px-3 py-1 tracking-widest border border-white/10 text-muted">已结束</span></div>
+    <div class="p-5 flex justify-between items-center"><div><div class="font-display text-2xl">2026-06-20 / 06-21</div><div class="text-paper/80">首尔 · KSPO DOME</div></div><span class="text-xs px-3 py-1 tracking-widest border border-white/10 text-muted">已结束</span></div>
+  </div>
+
+  <div class="mt-6 text-sm text-muted">日本场次票价（含税）：Arena Standing ¥16,000 / Stand Reserved ¥14,000。售票合作方：e+ / Ticket Pia / Lawson Ticket。</div>
+</section>
+
+<!-- =============== MERCH =============== -->
+<section id="merch" class="section max-w-5xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">MERCH</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-6">周边</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <a href="https://kinggnu-store.jp/" target="_blank" class="block border border-white/10 hover:border-accent p-6 transition">
+      <div class="font-semibold">King Gnu Official Store</div><p class="text-sm text-paper/70 mt-2">官方旗舰周边店</p>
+      <div class="text-accent text-xs mt-4 tracking-widest">前往店铺 →</div>
+    </a>
+    <a href="https://www.sonymusicshop.jp/" target="_blank" class="block border border-white/10 hover:border-accent p-6 transition">
+      <div class="font-semibold">Sony Music Shop</div><p class="text-sm text-paper/70 mt-2">初回限定、SHM-CD、Blu-ray</p>
+      <div class="text-accent text-xs mt-4 tracking-widest">前往店铺 →</div>
+    </a>
+    <a href="https://perimetron.tokyo/" target="_blank" class="block border border-white/10 hover:border-accent p-6 transition">
+      <div class="font-semibold">PERIMETRON</div><p class="text-sm text-paper/70 mt-2">创意团队周边</p>
+      <div class="text-accent text-xs mt-4 tracking-widest">前往店铺 →</div>
+    </a>
+  </div>
+</section>
+
+<!-- =============== COMMUNITY =============== -->
+<section id="community" class="section max-w-4xl mx-auto px-5 py-16 border-t border-white/5">
+  <p class="text-accent text-xs tracking-[0.4em] mb-2">COMMUNITY</p>
+  <h2 class="font-display text-5xl md:text-6xl mb-6">社区</h2>
+  <p class="text-paper/80 mb-8">通过 GitHub 登录发表评论，或直接前往 Discord 与其他粉丝实时聊天。</p>
+  <div class="grid md:grid-cols-2 gap-4">
+    <a class="border border-white/10 hover:border-accent p-6 block" href="#"><div class="font-display text-2xl">Discord</div><p class="text-sm text-paper/70 mt-2">实时聊天频道</p></a>
+    <a class="border border-white/10 hover:border-accent p-6 block" href="mailto:hello@example.com"><div class="font-display text-2xl">联系我们</div><p class="text-sm text-paper/70 mt-2">权利声明、投稿、合作</p></a>
+  </div>
+  <div class="mt-8 border border-white/10 p-6 text-sm text-muted">部署后此处渲染 Giscus 评论区（基于 GitHub Discussions）。</div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/10 mt-20">
+  <div class="max-w-6xl mx-auto px-5 py-10 text-sm text-muted grid gap-4 md:grid-cols-3">
+    <div>
+      <div class="font-display text-xl text-paper mb-2">KING GNU<span class="text-accent">.</span>HUB</div>
+      <p>非官方粉丝社区（Fan-made / Non-official）。本站与 King Gnu、Sony Music Labels Inc.、PERIMETRON 等相关权利人无直接关联。</p>
+    </div>
+    <div>
+      <div class="text-paper font-semibold mb-2">官方渠道</div>
+      <ul class="space-y-1">
+        <li><a class="hover:text-accent" href="https://kinggnu.jp" target="_blank">Official Site</a></li>
+        <li><a class="hover:text-accent" href="https://www.youtube.com/@KingGnu_official" target="_blank">YouTube</a></li>
+        <li><a class="hover:text-accent" href="https://open.spotify.com/artist/6ScoOF0PPnfvkkC1EnUEbl" target="_blank">Spotify</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-paper font-semibold mb-2">法律</div>
+      <p>如权利人认为本站内容存在侵权，请通过页面「社区」中的联系方式与我们联系，我们将在 48 小时内下架相关内容。</p>
+    </div>
+  </div>
+  <div class="text-center text-xs text-muted pb-6">© 2026 King Gnu Hub — Fan-made project</div>
+</footer>
+
+<script>
+// 简单高亮当前锚点
+const links = document.querySelectorAll('#nav a[data-tab]');
+const secs = [...document.querySelectorAll('section[id]')];
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      links.forEach(l => l.classList.toggle('active', l.dataset.tab===id));
+    }
+  });
+},{ rootMargin:"-40% 0px -55% 0px" });
+secs.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

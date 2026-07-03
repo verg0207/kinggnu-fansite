@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0b0f" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>King Gnu Hub · App</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.svg">
+<link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { ink:"#0b0b0f", ink2:"#14141a", paper:"#f5f2ea", accent:"#e63946", muted:"#8a8a8a" },
+      fontFamily: { sans:["'Noto Sans JP'","'Inter'","system-ui","sans-serif"], display:["'Bebas Neue'","'Noto Sans JP'","sans-serif"] }
+    }
+  }
+};
+</script>
+<style>
+  html,body{background:#0b0b0f;color:#f5f2ea;overscroll-behavior:none}
+  /* App shell 假手机 */
+  .device{
+    width:100%;max-width:430px;margin:0 auto;position:relative;
+    height:100dvh;min-height:640px;background:#0b0b0f;
+    display:flex;flex-direction:column;overflow:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,.5);
+  }
+  @media(min-width:640px){
+    body{background:#000;display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:20px}
+    .device{border-radius:36px;border:8px solid #111;height:900px;max-height:calc(100dvh - 40px)}
+    .device::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#000;border-radius:0 0 20px 20px;z-index:60}
+  }
+  .screen{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:170px;-webkit-overflow-scrolling:touch}
+  .screen::-webkit-scrollbar{display:none}
+  .page{display:none;animation:fade .28s ease-out}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .grain::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.05;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+  .marquee{white-space:nowrap;animation:mq 12s linear infinite}
+  @keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  .disc{animation:spin 8s linear infinite}
+  .disc.paused{animation-play-state:paused}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .tap{transition:transform .15s}
+  .tap:active{transform:scale(.96)}
+  /* iframe 隐藏但保留 audio 播放 */
+  #yt-player-host{position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden}
+  #yt-player-host.expanded{position:fixed;left:0;top:0;right:0;bottom:0;width:100%;height:100%;z-index:100;background:#000}
+  .now-hidden{display:none}
+</style>
+</head>
+<body class="font-sans">
+
+<div class="device grain">
+
+  <!-- YouTube 隐藏播放宿主 (音频常驻) -->
+  <div id="yt-player-host"><div id="yt-player"></div></div>
+
+  <!-- 状态栏(装饰) -->
+  <div class="relative z-10 flex items-center justify-between px-6 pt-3 pb-1 text-xs text-paper/80">
+    <span id="clock">--:--</span>
+    <span class="flex items-center gap-1">
+      <span>●●●●</span><span class="opacity-70">5G</span><span class="ml-2">🔋 88%</span>
+    </span>
+  </div>
+
+  <!-- 安装提示条（可安装 PWA 时弹出） -->
+  <div id="installBar" class="hidden mx-4 mt-2 rounded-xl border border-accent/60 bg-accent/10 px-3 py-2 flex items-center gap-3 relative z-20">
+    <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-sm">＋</div>
+    <div class="flex-1 text-[12px] leading-tight">
+      <div class="font-semibold text-paper">添加到主屏幕</div>
+      <div class="text-paper/70">离线可用 · 全屏体验 · 图标启动</div>
+    </div>
+    <button id="btnInstall" class="bg-accent text-paper text-xs px-3 py-1 rounded-full tap">安装</button>
+    <button id="btnDismiss" class="text-paper/60 text-lg px-1 tap">×</button>
+  </div>
+
+  <!-- iOS 引导（Safari 无法通过 JS 触发安装，仅提示步骤） -->
+  <div id="iosHint" class="hidden mx-4 mt-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-[11px] leading-tight relative z-20">
+    <span class="font-semibold text-paper">iOS 安装：</span>
+    Safari 底部 <span class="text-accent">分享 ⤴</span> → <span class="text-accent">添加到主屏幕</span>
+    <button id="btnIosClose" class="float-right text-paper/60 px-1 tap">×</button>
+  </div>
+
+  <!-- 顶栏 -->
+  <header class="relative z-10 px-5 py-3 flex items-center justify-between">
+    <div>
+      <div id="topTitle" class="font-display text-2xl tracking-wider">KING GNU<span class="text-accent">.</span>HUB</div>
+      <div id="topSub" class="text-[11px] text-muted">Fan-made App preview</div>
+    </div>
+    <button class="w-9 h-9 rounded-full bg-white/5 border border-white/10 tap flex items-center justify-center text-lg">🔔</button>
+  </header>
+
+  <!-- 页面滚动容器 -->
+  <main class="screen relative z-10">
+
+    <!-- ============ HOME ============ -->
+    <section class="page active" data-page="home">
+      <!-- Hero 卡 -->
+      <div class="mx-5 rounded-2xl overflow-hidden relative" style="background:linear-gradient(135deg,#1e1e28,#0b0b0f);">
+        <div class="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_30%_20%,#e63946_0%,transparent_50%)]"></div>
+        <div class="relative p-5">
+          <p class="text-accent tracking-widest text-[10px]">NOW PLAYING PICK</p>
+          <h1 class="font-display text-4xl leading-none mt-1">AIZO</h1>
+          <div class="text-xs text-muted mt-1">2026 · 呪術廻戦 第3期 OP</div>
+          <button data-play="zz2a9Q2Wru0" data-title="AIZO" class="mt-4 bg-accent text-paper px-4 py-2 rounded-full text-sm tap flex items-center gap-2">
+            <span>▶</span> 立即播放
+          </button>
+        </div>
+      </div>
+
+      <!-- 快捷入口 -->
+      <div class="grid grid-cols-4 gap-2 px-5 mt-5 text-center text-[11px]">
+        <button class="tap" data-goto="music"><div class="mx-auto w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl">🎧</div>听歌</button>
+        <button class="tap" data-goto="updates"><div class="mx-auto w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl">⚡</div>动态</button>
+        <button class="tap" data-goto="tour"><div class="mx-auto w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl">🎫</div>巡演</button>
+        <button class="tap" data-goto="me"><div class="mx-auto w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl">👤</div>我</button>
+      </div>
+
+      <!-- 热门歌曲横滚 -->
+      <div class="mt-6">
+        <div class="px-5 flex justify-between items-end mb-3">
+          <h2 class="font-display text-2xl">热门单曲</h2>
+          <button class="text-xs text-muted tap" data-goto="music">全部 →</button>
+        </div>
+        <div class="flex gap-3 overflow-x-auto pl-5 pr-2 pb-2 snap-x snap-mandatory">
+          <button data-play="zz2a9Q2Wru0" data-title="AIZO" class="snap-start shrink-0 w-36 text-left tap">
+            <img src="https://i.ytimg.com/vi/zz2a9Q2Wru0/hqdefault.jpg" class="w-36 h-36 object-cover rounded-xl" />
+            <div class="text-sm mt-2 font-semibold truncate">AIZO</div>
+            <div class="text-xs text-muted">2026 · OP</div>
+          </button>
+          <button data-play="b-uolrebi5M" data-title="SO BAD" class="snap-start shrink-0 w-36 text-left tap">
+            <img src="https://i.ytimg.com/vi/b-uolrebi5M/hqdefault.jpg" class="w-36 h-36 object-cover rounded-xl" />
+            <div class="text-sm mt-2 font-semibold truncate">SO BAD</div>
+            <div class="text-xs text-muted">2025</div>
+          </button>
+          <button data-play="bPGvr6G4ddU" data-title="TWILIGHT!!!" class="snap-start shrink-0 w-36 text-left tap">
+            <img src="https://i.ytimg.com/vi/bPGvr6G4ddU/hqdefault.jpg" class="w-36 h-36 object-cover rounded-xl" />
+            <div class="text-sm mt-2 font-semibold truncate">TWILIGHT!!!</div>
+            <div class="text-xs text-muted">2025</div>
+          </button>
+          <button data-play="hkMNf8OBMyw" data-title="MASCARA" class="snap-start shrink-0 w-36 text-left tap">
+            <img src="https://i.ytimg.com/vi/hkMNf8OBMyw/hqdefault.jpg" class="w-36 h-36 object-cover rounded-xl" />
+            <div class="text-sm mt-2 font-semibold truncate">MASCARA</div>
+            <div class="text-xs text-muted">2024</div>
+          </button>
+          <button data-play="iwIvS8yqDaU" data-title="SPECIALZ" class="snap-start shrink-0 w-36 text-left tap">
+            <img src="https://i.ytimg.com/vi/iwIvS8yqDaU/hqdefault.jpg" class="w-36 h-36 object-cover rounded-xl" />
+            <div class="text-sm mt-2 font-semibold truncate">SPECIALZ</div>
+            <div class="text-xs text-muted">2023</div>
+          </button>
+          <button data-play="ony539T074w" data-title="白日 / Hakujitsu" class="snap-start shrink-0 w-36 text-left tap">
+            <img src="https://i.ytimg.com/vi/ony539T074w/hqdefault.jpg" class="w-36 h-36 object-cover rounded-xl" />
+            <div class="text-sm mt-2 font-semibold truncate">白日</div>
+            <div class="text-xs text-muted">2019</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 官方专辑 (Spotify) -->
+      <div class="mt-6 px-5">
+        <h2 class="font-display text-2xl mb-3">官方专辑 · Spotify</h2>
+        <div class="space-y-3">
+          <div class="rounded-xl overflow-hidden border border-white/10">
+            <iframe src="https://open.spotify.com/embed/album/5wRPj4pJHl8oGSVjt8bC7T?utm_source=generator&theme=0" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10">
+            <iframe src="https://open.spotify.com/embed/album/3ZBGmATHkJ8mfnFczr7HYM?utm_source=generator&theme=0" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- 头条 -->
+      <div class="mt-6 px-5 pb-6">
+        <h2 class="font-display text-2xl mb-3">头条</h2>
+        <div class="space-y-2">
+          <a href="https://www.sonymusic.co.jp/artist/kinggnu/info/583066" target="_blank" class="block border border-white/10 rounded-xl p-4 tap">
+            <div class="text-[11px] text-muted">2026-07-15 · Sony Music</div>
+            <div class="font-semibold mt-1">CEN+RAL Tour 2026 · 横浜アリーナ FINAL</div>
+          </a>
+          <a href="https://kinggnu.jp/music/AIZO/" target="_blank" class="block border border-white/10 rounded-xl p-4 tap">
+            <div class="text-[11px] text-muted">2026-02-11 · kinggnu.jp</div>
+            <div class="font-semibold mt-1">AIZO — 呪術廻戦 第3期 OP テーマ</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MUSIC ============ -->
+    <section class="page" data-page="music">
+      <div class="px-5">
+        <h1 class="font-display text-3xl">听歌</h1>
+        <p class="text-xs text-muted mt-1">通过官方 YouTube · Spotify 合规嵌入</p>
+      </div>
+
+      <div class="px-5 mt-4 flex gap-2 text-xs" id="musicTabs">
+        <button data-mtab="tracks" class="mtab bg-accent text-paper px-3 py-1 rounded-full">单曲</button>
+        <button data-mtab="albums" class="mtab border border-white/20 px-3 py-1 rounded-full">专辑</button>
+        <button data-mtab="mvs"    class="mtab border border-white/20 px-3 py-1 rounded-full">MV</button>
+      </div>
+
+      <div class="mt-4" id="mpanel-tracks">
+        <ul class="divide-y divide-white/5 border-y border-white/5" id="trackList"></ul>
+      </div>
+      <div class="mt-4 hidden px-5 space-y-3" id="mpanel-albums">
+        <div class="rounded-xl overflow-hidden border border-white/10">
+          <iframe src="https://open.spotify.com/embed/album/5wRPj4pJHl8oGSVjt8bC7T?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-white/10">
+          <iframe src="https://open.spotify.com/embed/album/3ZBGmATHkJ8mfnFczr7HYM?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-white/10">
+          <iframe src="https://open.spotify.com/embed/album/4V7uUAVpv3nSGSuAgvyJ1V?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media" loading="lazy"></iframe>
+        </div>
+      </div>
+      <div class="mt-4 hidden px-5 grid grid-cols-1 gap-3" id="mpanel-mvs">
+        <!-- 用 JS 动态渲染 MV 缩略图 -->
+        <div id="mvGrid" class="grid grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- ============ UPDATES ============ -->
+    <section class="page" data-page="updates">
+      <div class="px-5">
+        <h1 class="font-display text-3xl">最新动态</h1>
+        <p class="text-xs text-muted mt-1">YouTube · X · Instagram · Facebook · TikTok</p>
+      </div>
+      <div class="px-5 mt-4 flex gap-2 overflow-x-auto text-xs pb-2">
+        <a href="https://www.youtube.com/@KingGnu_official" target="_blank" class="shrink-0 border border-white/20 hover:border-accent px-3 py-1 rounded-full tap">YouTube</a>
+        <a href="https://x.com/KingGnu_JP" target="_blank" class="shrink-0 border border-white/20 hover:border-accent px-3 py-1 rounded-full tap">X</a>
+        <a href="https://www.instagram.com/kinggnu.jp/" target="_blank" class="shrink-0 border border-white/20 hover:border-accent px-3 py-1 rounded-full tap">Instagram</a>
+        <a href="https://www.facebook.com/KingGnu/" target="_blank" class="shrink-0 border border-white/20 hover:border-accent px-3 py-1 rounded-full tap">Facebook</a>
+        <a href="https://www.tiktok.com/@kinggnu_official" target="_blank" class="shrink-0 border border-white/20 hover:border-accent px-3 py-1 rounded-full tap">TikTok</a>
+      </div>
+
+      <!-- 视频信息流 -->
+      <div class="mt-2" id="feedList"></div>
+
+      <!-- 社交时间线占位 -->
+      <div class="mx-5 mt-4 border border-white/10 rounded-xl p-4 text-sm">
+        <div class="text-accent text-[10px] tracking-widest mb-1">X (TWITTER)</div>
+        <div class="font-semibold">@KingGnu_JP</div>
+        <p class="text-xs text-muted mt-2">部署到 Vercel 后，本卡片将嵌入官方 Twitter 时间线 widget（platform.twitter.com/widgets.js）实时刷新。</p>
+        <a class="text-accent text-xs mt-3 inline-block" href="https://x.com/KingGnu_JP" target="_blank">在 X 打开 →</a>
+      </div>
+      <div class="mx-5 mt-3 mb-6 border border-white/10 rounded-xl p-4 text-sm">
+        <div class="text-accent text-[10px] tracking-widest mb-1">INSTAGRAM</div>
+        <div class="font-semibold">@kinggnu.jp</div>
+        <p class="text-xs text-muted mt-2">通过 Meta Graph API 长期 token 拉取真实图墙（详见 README 说明）。</p>
+        <a class="text-accent text-xs mt-3 inline-block" href="https://www.instagram.com/kinggnu.jp/" target="_blank">在 Instagram 打开 →</a>
+      </div>
+    </section>
+
+    <!-- ============ TOUR ============ -->
+    <section class="page" data-page="tour">
+      <div class="px-5">
+        <h1 class="font-display text-3xl">巡演</h1>
+        <p class="text-xs text-muted mt-1">King Gnu CEN+RAL Tour 2026</p>
+      </div>
+
+      <div class="mx-5 mt-4 grid grid-cols-4 gap-2 text-center">
+        <div class="border border-white/10 rounded-xl p-2"><div class="font-display text-xl text-accent">29+</div><div class="text-[10px] text-muted">SHOWS</div></div>
+        <div class="border border-white/10 rounded-xl p-2"><div class="font-display text-xl text-accent">15</div><div class="text-[10px] text-muted">CITIES</div></div>
+        <div class="border border-white/10 rounded-xl p-2"><div class="font-display text-xl text-accent">JP+Asia</div><div class="text-[10px] text-muted">REGION</div></div>
+        <div class="border border-white/10 rounded-xl p-2"><div class="font-display text-xl text-accent">Feb–Jul</div><div class="text-[10px] text-muted">2026</div></div>
+      </div>
+
+      <h3 class="px-5 font-display text-xl mt-6 mb-2">Upcoming</h3>
+      <div class="mx-5 border border-white/10 rounded-xl divide-y divide-white/5" id="upcomingList"></div>
+
+      <h3 class="px-5 font-display text-xl mt-6 mb-2">Asia</h3>
+      <div class="mx-5 border border-white/10 rounded-xl divide-y divide-white/5" id="asiaList"></div>
+
+      <h3 class="px-5 font-display text-xl mt-6 mb-2">Japan</h3>
+      <div class="mx-5 border border-white/10 rounded-xl divide-y divide-white/5 mb-6" id="japanList"></div>
+    </section>
+
+    <!-- ============ ME ============ -->
+    <section class="page" data-page="me">
+      <div class="px-5">
+        <h1 class="font-display text-3xl">我</h1>
+        <p class="text-xs text-muted mt-1">粉丝身份 · 收藏 · 设置</p>
+      </div>
+      <div class="mx-5 mt-4 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center text-2xl">🎸</div>
+        <div>
+          <div class="font-semibold">未登录粉丝</div>
+          <div class="text-xs text-muted">登录后同步收藏与评论</div>
+        </div>
+        <button class="ml-auto text-xs bg-accent text-paper px-3 py-1 rounded-full tap">登录</button>
+      </div>
+
+      <div class="mx-5 mt-4 border border-white/10 rounded-2xl divide-y divide-white/5">
+        <a href="#" class="flex items-center justify-between p-4 tap"><span>🎧 我的收藏</span><span class="text-muted">→</span></a>
+        <a href="#" class="flex items-center justify-between p-4 tap"><span>🕐 最近播放</span><span class="text-muted">→</span></a>
+        <a href="#" class="flex items-center justify-between p-4 tap"><span>🔔 通知设置</span><span class="text-muted">→</span></a>
+        <a href="#" class="flex items-center justify-between p-4 tap"><span>🌐 语言 / Language</span><span class="text-muted">中文</span></a>
+      </div>
+
+      <div class="mx-5 mt-4 border border-white/10 rounded-2xl p-4 text-xs text-muted">
+        本 App 为非官方粉丝作品（Fan-made）。音乐、图片、影像版权归 King Gnu、Sony Music Labels Inc.、PERIMETRON 等原始权利人所有。
+      </div>
+      <div class="pb-6"></div>
+    </section>
+
+  </main>
+
+  <!-- Mini Player -->
+  <div id="miniplayer" class="now-hidden fixed left-0 right-0 z-40" style="bottom:64px">
+    <div class="mx-auto max-w-[430px] px-3">
+      <div class="rounded-2xl border border-white/10 bg-ink2/95 backdrop-blur flex items-center gap-3 p-2 pr-3">
+        <img id="mpCover" class="w-12 h-12 rounded-lg object-cover disc" />
+        <div class="flex-1 overflow-hidden">
+          <div class="text-[10px] text-accent tracking-widest">NOW PLAYING</div>
+          <div class="overflow-hidden">
+            <div id="mpTitleWrap" class="whitespace-nowrap">
+              <span id="mpTitle" class="text-sm font-semibold">—</span>
+              &nbsp;·&nbsp;King Gnu &nbsp;&nbsp;&nbsp;&nbsp;<span id="mpTitle2" class="text-sm font-semibold">—</span> · King Gnu
+            </div>
+          </div>
+        </div>
+        <button id="mpPrev" class="w-9 h-9 rounded-full bg-white/5 tap flex items-center justify-center">⏮</button>
+        <button id="mpToggle" class="w-10 h-10 rounded-full bg-accent tap flex items-center justify-center text-lg">▶</button>
+        <button id="mpNext" class="w-9 h-9 rounded-full bg-white/5 tap flex items-center justify-center">⏭</button>
+        <button id="mpExpand" class="w-9 h-9 rounded-full bg-white/5 tap flex items-center justify-center">⤢</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full player -->
+  <div id="fullplayer" class="hidden fixed inset-0 z-50 bg-ink/95 backdrop-blur flex flex-col">
+    <div class="flex justify-between items-center p-4">
+      <button id="fpClose" class="text-2xl tap">⌄</button>
+      <div class="text-xs text-muted">NOW PLAYING</div>
+      <button class="text-lg tap opacity-30">⋯</button>
+    </div>
+    <div id="fpVideoBox" class="mx-4 aspect-video rounded-xl overflow-hidden bg-black"></div>
+    <div class="px-6 mt-6">
+      <div id="fpTitle" class="font-display text-3xl">—</div>
+      <div class="text-sm text-muted">King Gnu · Official</div>
+    </div>
+    <div class="mt-auto p-6 flex justify-center items-center gap-8">
+      <button id="fpPrev" class="w-12 h-12 rounded-full bg-white/5 tap text-xl">⏮</button>
+      <button id="fpToggle" class="w-16 h-16 rounded-full bg-accent tap text-2xl">▶</button>
+      <button id="fpNext" class="w-12 h-12 rounded-full bg-white/5 tap text-xl">⏭</button>
+    </div>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <nav id="tabbar" class="absolute bottom-0 left-0 right-0 z-30 bg-ink/95 backdrop-blur border-t border-white/10">
+    <div class="grid grid-cols-5 py-2 text-[10px]">
+      <button data-tab="home"    class="tab tap flex flex-col items-center gap-1 py-1 text-accent"><span class="text-xl">◎</span>首页</button>
+      <button data-tab="music"   class="tab tap flex flex-col items-center gap-1 py-1 text-muted"><span class="text-xl">♪</span>听歌</button>
+      <button data-tab="updates" class="tab tap flex flex-col items-center gap-1 py-1 text-muted"><span class="text-xl">✧</span>动态</button>
+      <button data-tab="tour"    class="tab tap flex flex-col items-center gap-1 py-1 text-muted"><span class="text-xl">✈</span>巡演</button>
+      <button data-tab="me"      class="tab tap flex flex-col items-center gap-1 py-1 text-muted"><span class="text-xl">☺</span>我</button>
+    </div>
+    <div style="height:env(safe-area-inset-bottom)"></div>
+  </nav>
+</div>
+
+<script>
+// ============== 数据 ==============
+const TRACKS = [
+  { id:"zz2a9Q2Wru0", title:"AIZO",           date:"2026-02-11", tie:"呪術廻戦 第3期 OP" },
+  { id:"b-uolrebi5M", title:"SO BAD",         date:"2025-09-05" },
+  { id:"bPGvr6G4ddU", title:"TWILIGHT!!!",    date:"2025-04-18" },
+  { id:"hkMNf8OBMyw", title:"MASCARA",        date:"2024-10-04" },
+  { id:"iwIvS8yqDaU", title:"SPECIALZ",       date:"2023-09-06", tie:"呪術廻戦 渋谷事変 OP" },
+  { id:"5yzGiuUf8i0", title:"一途 / Ichizu",   date:"2021-12-24", tie:"劇場版 呪術廻戦 0 主題歌" },
+  { id:"1sZ1BbrK1sw", title:"三文小説",        date:"2020-12-02" },
+  { id:"ony539T074w", title:"白日 / Hakujitsu", date:"2019-02-22", tie:"NHK ドラマ主題歌" }
+];
+
+const SHOWS = [
+  { date:"2026-07-15", city:"横浜 Yokohama", venue:"横浜アリーナ TOUR FINAL", region:"final", status:"on-sale" },
+  { date:"2026-06-20", city:"ソウル Seoul",  venue:"KSPO DOME",       region:"asia" },
+  { date:"2026-06-13", city:"上海 Shanghai", venue:"TBA",             region:"asia" },
+  { date:"2026-06-06", city:"台北 Taipei",   venue:"Taipei Arena",    region:"asia" },
+  { date:"2026-05-29", city:"香港 HK",       venue:"AsiaWorld-Arena", region:"asia" },
+  { date:"2026-05-23", city:"バンコク Bangkok", venue:"One Bangkok Forum", region:"asia" },
+  { date:"2026-05-09", city:"新潟 Niigata",  venue:"朱鷺メッセ",       region:"japan" },
+  { date:"2026-05-01", city:"札幌 Sapporo",  venue:"真駒内 セキスイハイム", region:"japan" },
+  { date:"2026-04-21", city:"福岡 Fukuoka",  venue:"マリンメッセ A館", region:"japan" },
+  { date:"2026-04-14", city:"千葉 Chiba",    venue:"LaLa arena TOKYO-BAY", region:"japan" },
+  { date:"2026-04-04", city:"広島 Hiroshima", venue:"広島グリーンアリーナ", region:"japan" },
+  { date:"2026-03-28", city:"名古屋 Nagoya", venue:"ポートメッセなごや",   region:"japan" },
+  { date:"2026-03-18", city:"東京 Tokyo",    venue:"有明アリーナ",     region:"japan" },
+  { date:"2026-03-11", city:"香川 Kagawa",   venue:"あなぶきアリーナ",   region:"japan" },
+  { date:"2026-03-03", city:"大阪 Osaka",    venue:"大阪城ホール",     region:"japan" },
+  { date:"2026-02-21", city:"宮城 Miyagi",   venue:"セキスイハイム SA",  region:"japan" },
+];
+
+// ============== 播放器（YouTube IFrame API） ==============
+let player, currentIdx = 0, isPlaying = false;
+window.onYouTubeIframeAPIReady = function(){
+  player = new YT.Player('yt-player', {
+    height:"100%", width:"100%",
+    playerVars:{ playsinline:1, rel:0, modestbranding:1 },
+    events:{
+      onReady: ()=>{},
+      onStateChange: (e)=>{
+        if(e.data===YT.PlayerState.PLAYING){ isPlaying=true; syncPlayUI(true); }
+        else if(e.data===YT.PlayerState.PAUSED){ isPlaying=false; syncPlayUI(false); }
+        else if(e.data===YT.PlayerState.ENDED){ next(); }
+      }
+    }
+  });
+};
+
+function playByIndex(i){
+  currentIdx = (i + TRACKS.length) % TRACKS.length;
+  const t = TRACKS[currentIdx];
+  if(!player || !player.loadVideoById){ setTimeout(()=>playByIndex(i), 200); return; }
+  player.loadVideoById(t.id);
+  showMini(t);
+}
+function playById(vid){
+  const i = TRACKS.findIndex(t=>t.id===vid);
+  if(i>=0) playByIndex(i);
+}
+function toggle(){ if(!player) return; isPlaying? player.pauseVideo(): player.playVideo(); }
+function next(){ playByIndex(currentIdx+1); }
+function prev(){ playByIndex(currentIdx-1); }
+
+function showMini(t){
+  document.getElementById('miniplayer').classList.remove('now-hidden');
+  document.getElementById('mpCover').src = `https://i.ytimg.com/vi/${t.id}/hqdefault.jpg`;
+  document.getElementById('mpTitle').textContent = t.title;
+  document.getElementById('mpTitle2').textContent = t.title;
+  document.getElementById('fpTitle').textContent = t.title;
+}
+function syncPlayUI(playing){
+  document.getElementById('mpToggle').textContent = playing? "⏸":"▶";
+  document.getElementById('fpToggle').textContent = playing? "⏸":"▶";
+  document.getElementById('mpCover').classList.toggle('paused', !playing);
+}
+
+// ============== Full player 展开/收起 ==============
+const host = document.getElementById('yt-player-host');
+const fp = document.getElementById('fullplayer');
+document.getElementById('mpExpand').addEventListener('click', ()=>{
+  fp.classList.remove('hidden');
+  // 把 iframe 从隐藏宿主搬到全屏容器
+  document.getElementById('fpVideoBox').appendChild(document.getElementById('yt-player'));
+});
+document.getElementById('fpClose').addEventListener('click', ()=>{
+  fp.classList.add('hidden');
+  host.appendChild(document.getElementById('yt-player'));
+});
+document.getElementById('mpToggle').addEventListener('click', toggle);
+document.getElementById('mpPrev').addEventListener('click', prev);
+document.getElementById('mpNext').addEventListener('click', next);
+document.getElementById('fpToggle').addEventListener('click', toggle);
+document.getElementById('fpPrev').addEventListener('click', prev);
+document.getElementById('fpNext').addEventListener('click', next);
+
+// ============== Tabs & 跳转 ==============
+function goto(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.dataset.page===name));
+  document.querySelectorAll('#tabbar .tab').forEach(b=>{
+    const on = b.dataset.tab===name;
+    b.classList.toggle('text-accent', on);
+    b.classList.toggle('text-muted', !on);
+  });
+  document.querySelector('.screen').scrollTop = 0;
+  const titles = {home:['KING GNU.HUB','Fan-made App preview'], music:['LISTEN','听歌 · 官方嵌入'], updates:['LIVE FEED','实时聚合动态'], tour:['TOUR','CEN+RAL Tour 2026'], me:['ME','个人中心']};
+  const [t,s] = titles[name] || ['','']; document.getElementById('topTitle').textContent=t; document.getElementById('topSub').textContent=s;
+}
+document.querySelectorAll('#tabbar .tab, [data-goto]').forEach(el=>{
+  el.addEventListener('click', ()=>goto(el.dataset.tab || el.dataset.goto));
+});
+document.querySelectorAll('[data-play]').forEach(el=>{
+  el.addEventListener('click', ()=>playById(el.dataset.play));
+});
+
+// ============== 渲染动态列表 ==============
+// Music - Tracks
+const trackList = document.getElementById('trackList');
+TRACKS.forEach((t,i)=>{
+  const li = document.createElement('li');
+  li.className = "flex items-center gap-3 px-5 py-3 tap";
+  li.innerHTML = `
+    <img src="https://i.ytimg.com/vi/${t.id}/hqdefault.jpg" class="w-12 h-12 rounded-lg object-cover" />
+    <div class="flex-1 overflow-hidden">
+      <div class="text-sm font-semibold truncate">${t.title}</div>
+      <div class="text-[11px] text-muted truncate">${t.date}${t.tie? " · "+t.tie: ""}</div>
+    </div>
+    <button class="w-9 h-9 rounded-full bg-accent text-paper">▶</button>
+  `;
+  li.addEventListener('click', ()=>playByIndex(i));
+  trackList.appendChild(li);
+});
+
+// Music - MVs
+const mvGrid = document.getElementById('mvGrid');
+TRACKS.forEach((t,i)=>{
+  const div = document.createElement('button');
+  div.className = "text-left tap";
+  div.innerHTML = `
+    <div class="aspect-video rounded-xl overflow-hidden bg-black/40">
+      <img src="https://i.ytimg.com/vi/${t.id}/hqdefault.jpg" class="w-full h-full object-cover"/>
+    </div>
+    <div class="text-sm font-semibold mt-1 truncate">${t.title}</div>
+    <div class="text-[11px] text-muted truncate">${t.date}</div>
+  `;
+  div.addEventListener('click', ()=>{ playByIndex(i); document.getElementById('mpExpand').click(); });
+  mvGrid.appendChild(div);
+});
+
+// Music tabs
+document.querySelectorAll('#musicTabs .mtab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const key = btn.dataset.mtab;
+    document.querySelectorAll('#musicTabs .mtab').forEach(b=>{
+      b.classList.remove('bg-accent','text-paper');
+      b.classList.add('border','border-white/20');
+    });
+    btn.classList.remove('border','border-white/20');
+    btn.classList.add('bg-accent','text-paper');
+    ['tracks','albums','mvs'].forEach(k=>{
+      document.getElementById('mpanel-'+k).classList.toggle('hidden', k!==key);
+    });
+  });
+});
+
+// Updates - feed
+const feedList = document.getElementById('feedList');
+TRACKS.slice(0,6).forEach((t,i)=>{
+  const card = document.createElement('div');
+  card.className = "mx-5 mt-3 border border-white/10 rounded-xl overflow-hidden tap";
+  card.innerHTML = `
+    <div class="flex items-center gap-2 p-3">
+      <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-xs">YT</div>
+      <div><div class="text-sm font-semibold">King Gnu Official</div><div class="text-[11px] text-muted">${t.date}</div></div>
+      <button class="ml-auto text-xs text-accent">播放 ▶</button>
+    </div>
+    <div class="aspect-video bg-black">
+      <img src="https://i.ytimg.com/vi/${t.id}/hqdefault.jpg" class="w-full h-full object-cover"/>
+    </div>
+    <div class="p-3">
+      <div class="text-sm font-semibold">${t.title}</div>
+      <div class="text-[11px] text-muted mt-1">${t.tie||"Official Music Video"}</div>
+    </div>
+  `;
+  card.addEventListener('click', ()=>{ playById(t.id); document.getElementById('mpExpand').click(); });
+  feedList.appendChild(card);
+});
+
+// Tour lists
+function renderShow(s){
+  const badge = s.status==='on-sale'
+    ? '<span class="text-[10px] bg-accent text-paper px-2 py-0.5 rounded-full">开票中</span>'
+    : '<span class="text-[10px] border border-white/10 text-muted px-2 py-0.5 rounded-full">已结束</span>';
+  return `
+    <div class="p-3 flex items-center gap-3">
+      <div class="font-display text-lg w-24 shrink-0">${s.date.slice(5)}</div>
+      <div class="flex-1 overflow-hidden">
+        <div class="text-sm font-semibold truncate">${s.city}</div>
+        <div class="text-[11px] text-muted truncate">${s.venue}</div>
+      </div>
+      ${badge}
+    </div>`;
+}
+document.getElementById('upcomingList').innerHTML =
+  SHOWS.filter(s=>s.status==='on-sale').map(renderShow).join('');
+document.getElementById('asiaList').innerHTML =
+  SHOWS.filter(s=>s.region==='asia').map(renderShow).join('');
+document.getElementById('japanList').innerHTML =
+  SHOWS.filter(s=>s.region==='japan').map(renderShow).join('');
+
+// Clock
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent =
+    String(d.getHours()).padStart(2,'0')+":"+String(d.getMinutes()).padStart(2,'0');
+}
+tick(); setInterval(tick, 15000);
+
+// ============== 深链：URL hash 直达页面（配合 manifest shortcuts） ==============
+function gotoFromHash(){
+  const h = (location.hash||'').replace('#','');
+  if(['home','music','updates','tour','me'].includes(h)) goto(h);
+}
+window.addEventListener('hashchange', gotoFromHash);
+gotoFromHash();
+
+// ============== PWA：Service Worker 注册 ==============
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ============== PWA：安装提示 ==============
+let deferredPrompt = null;
+const installBar = document.getElementById('installBar');
+const iosHint    = document.getElementById('iosHint');
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!sessionStorage.getItem('gnuhub_install_dismissed')){
+    installBar.classList.remove('hidden');
+  }
+});
+document.getElementById('btnInstall').addEventListener('click', async ()=>{
+  if(!deferredPrompt) return;
+  installBar.classList.add('hidden');
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
+document.getElementById('btnDismiss').addEventListener('click', ()=>{
+  installBar.classList.add('hidden');
+  sessionStorage.setItem('gnuhub_install_dismissed','1');
+});
+
+// iOS Safari 不支持 beforeinstallprompt，需要引导用户手动添加
+(function(){
+  const ua = window.navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if(isIOS && !isStandalone && !sessionStorage.getItem('gnuhub_ios_dismissed')){
+    iosHint.classList.remove('hidden');
+  }
+  document.getElementById('btnIosClose').addEventListener('click', ()=>{
+    iosHint.classList.add('hidden');
+    sessionStorage.setItem('gnuhub_ios_dismissed','1');
+  });
+})();
+</script>
+</body>
+</html>

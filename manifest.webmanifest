@@ -1,0 +1,23 @@
+{
+  "name": "King Gnu Hub",
+  "short_name": "GnuHub",
+  "description": "King Gnu 非官方粉丝一站式 App —— 听歌 / 动态 / 巡演 / 社区。",
+  "start_url": "./app-preview.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b0f",
+  "theme_color": "#0b0b0f",
+  "lang": "zh-CN",
+  "categories": ["music", "entertainment", "social"],
+  "icons": [
+    { "src": "./icons/icon-192.svg",  "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "./icons/icon-512.svg",  "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "./icons/icon-1024.svg", "sizes": "1024x1024","type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "听歌", "short_name": "Music",   "url": "./app-preview.html#music",   "description": "打开听歌" },
+    { "name": "动态", "short_name": "Updates", "url": "./app-preview.html#updates", "description": "官方最新动态" },
+    { "name": "巡演", "short_name": "Tour",    "url": "./app-preview.html#tour",    "description": "CEN+RAL Tour 2026" }
+  ]
+}
